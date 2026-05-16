@@ -34,7 +34,17 @@ export async function POST(req: NextRequest) {
 
         // Extract settings payload before parsing to know which columns are required
         const settingsString = formData.get("settings") as string | null;
-        const settings = settingsString ? JSON.parse(settingsString) : null;
+        let settings = null;
+        if (settingsString) {
+            try {
+                settings = JSON.parse(settingsString);
+            } catch (error) {
+                return NextResponse.json(
+                    { error: "Invalid settings JSON. Please provide valid JSON in the settings field." },
+                    { status: 400 }
+                );
+            }
+        }
         const saveToDb = formData.get("saveToDb") !== "false";
 
         if (saveToDb && (!session || !session.user)) {
